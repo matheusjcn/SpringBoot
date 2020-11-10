@@ -1,11 +1,14 @@
 package com.appsdelevloper.app.ws.io.entity;
 
 import java.io.Serializable;
+import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 
 @Entity(name = "users")
 public class UserEntity implements Serializable {
@@ -25,11 +28,14 @@ public class UserEntity implements Serializable {
 	private String lastName;
 	@Column(nullable = false, length = 120, unique=true)
 	private String email;
-	@Column(nullable = false)
+	@Column(nullable = false) 
 	private String encryptedPassword;
 	private String emailVerficationToken;
 	@Column(nullable = false, columnDefinition = "boolean default false")
 	private Boolean emailVerificationStatus;
+	
+	@OneToMany(mappedBy="userDetails", cascade=CascadeType.ALL)
+	private List<AddressEntity> addresses;
 
 	public long getId() {
 		return id;
@@ -95,4 +101,32 @@ public class UserEntity implements Serializable {
 		this.emailVerificationStatus = emailVerificationStatus;
 	}
 
+	public List<AddressEntity> getAddresses() {
+		return addresses;
+	}
+
+	public void setAddresses(List<AddressEntity> addresses) {
+		this.addresses = addresses;
+	}
+	
+	@Override
+	public String toString() {
+
+		StringBuffer stringBuffer = new StringBuffer();
+		stringBuffer.append("Id: ");
+		stringBuffer.append(this.id);
+		stringBuffer.append("\n UserId: ");
+		stringBuffer.append(this.userId);
+		stringBuffer.append("\n FirstName: ");
+		stringBuffer.append(this.firstName);
+		stringBuffer.append("\n LastName: ");
+		stringBuffer.append(this.lastName);
+		stringBuffer.append("\n Email: ");
+		stringBuffer.append(this.email);
+		stringBuffer.append("\n Address: ");
+		stringBuffer.append(this.addresses);
+
+		return stringBuffer.toString();
+		}
+	
 }

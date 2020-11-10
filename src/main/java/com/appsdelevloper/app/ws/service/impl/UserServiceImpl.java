@@ -3,6 +3,7 @@ package com.appsdelevloper.app.ws.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -19,6 +20,7 @@ import com.appsdelevloper.app.ws.io.entity.UserEntity;
 import com.appsdelevloper.app.ws.io.repositories.UserRepository;
 import com.appsdelevloper.app.ws.service.UserService;
 import com.appsdelevloper.app.ws.shared.Utils;
+import com.appsdelevloper.app.ws.shared.dto.AddressDTO;
 import com.appsdelevloper.app.ws.shared.dto.UserDto;
 import com.appsdelevloper.app.ws.ui.model.response.ErrorMessages;
 
@@ -29,7 +31,7 @@ public class UserServiceImpl implements UserService {
 	UserRepository userRepository;
 
 	@Autowired
-	Utils utils;
+	Utils utils; 
 
 	@Autowired
 	BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -38,20 +40,35 @@ public class UserServiceImpl implements UserService {
 	public UserDto createUser(UserDto user) {
 
 		if (userRepository.findByEmail(user.getEmail()) != null)
-			throw new RuntimeException("Record already Exists");
+			throw new RuntimeException("Record already Exists");		
+		
+		System.out.println(user.getAddresses().size());
+		for (int i = 0; i < user.getAddresses().size(); i++) {
+			AddressDTO address = user.getAddresses().get(i);
+			address.setUserDetails(user);
+			address.setAddressId(utils.generateAddressId(30));
+			user.getAddresses().set(i,  address);
+		}
 
-		UserEntity userEntity = new UserEntity();
-		BeanUtils.copyProperties(user, userEntity);
-
+		System.out.println("[UserServiceImpl] - createUser -  Mapper");
+		
+		ModelMapper modelMapper = new ModelMapper();
+		UserEntity userEntity = modelMapper.map(user, UserEntity.class);
+		
 		String publicUserId = utils.generateUSerId(30);
-
 		userEntity.setUserId(publicUserId);
 		userEntity.setEncryptedPassword(bCryptPasswordEncoder.encode(user.getPassword()));
 
+		System.out.println("[UserServiceImpl] - createUser -  save");
+		System.out.println(userEntity.toString());
+		
 		UserEntity storedUserDetails = userRepository.save(userEntity);
+		
+		System.out.println("[UserServiceImpl] - createUser -  pos-save");
 
-		UserDto returnValue = new UserDto();
-		BeanUtils.copyProperties(storedUserDetails, returnValue);
+		UserDto returnValue = modelMapper.map(storedUserDetails, UserDto.class);
+		
+		System.out.println("[UserServiceImpl] - createUser -  end");
 
 		return returnValue;
 	}

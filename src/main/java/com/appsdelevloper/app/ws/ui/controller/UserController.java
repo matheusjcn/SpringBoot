@@ -1,9 +1,11 @@
 package com.appsdelevloper.app.ws.ui.controller;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -17,9 +19,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.appsdelevloper.app.ws.service.AddressService;
 import com.appsdelevloper.app.ws.service.UserService;
+import com.appsdelevloper.app.ws.shared.dto.AddressDTO;
 import com.appsdelevloper.app.ws.shared.dto.UserDto;
 import com.appsdelevloper.app.ws.ui.model.request.UserDetailsRequestModel;
+import com.appsdelevloper.app.ws.ui.model.response.AddressesRest;
 import com.appsdelevloper.app.ws.ui.model.response.OperationStatusModel;
 import com.appsdelevloper.app.ws.ui.model.response.RequestOperationStatus;
 import com.appsdelevloper.app.ws.ui.model.response.UserRest;
@@ -30,6 +35,9 @@ public class UserController {
 
 	@Autowired
 	UserService userService;
+	
+	@Autowired
+	AddressService addressesService;
 
 	@GetMapping(path = "/{id}", produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
 	public UserRest getUser(@PathVariable String id) {
@@ -90,15 +98,26 @@ public class UserController {
 		List<UserRest> returnValue = new ArrayList<>();
 		List<UserDto> users = userService.getUsers(page, limit);
 
-		if (page > 0)
-			page = page - 1;
-
 		for (UserDto userDto : users) {
 			UserRest userModel = new UserRest();
 			BeanUtils.copyProperties(userDto, userModel);
 			returnValue.add(userModel);
 		}
 
+		return returnValue;
+	}
+	
+	@GetMapping(path = "/{id}/addresses",
+			produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
+	public List<AddressesRest> getUSerAdresses(@PathVariable String id) throws Exception {
+		List<AddressesRest> returnValue = new ArrayList<>();
+		
+		List<AddressDTO> addressesDTO = addressesService.getAddresses(id);
+
+		if(addressesDTO != null && !addressesDTO.isEmpty()) {
+			Type listType = new TypeToken<List<AddressesRest>>() {}.getType();
+			returnValue = new ModelMapper().map(addressesDTO, listType);
+		}
 		return returnValue;
 	}
 

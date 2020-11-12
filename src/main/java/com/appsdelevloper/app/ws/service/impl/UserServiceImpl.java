@@ -40,9 +40,8 @@ public class UserServiceImpl implements UserService {
 	public UserDto createUser(UserDto user) {
 
 		if (userRepository.findByEmail(user.getEmail()) != null)
-			throw new RuntimeException("Record already Exists");		
+			throw new RuntimeException("Record already Exists");
 		
-		System.out.println(user.getAddresses().size());
 		for (int i = 0; i < user.getAddresses().size(); i++) {
 			AddressDTO address = user.getAddresses().get(i);
 			address.setUserDetails(user);
@@ -50,25 +49,15 @@ public class UserServiceImpl implements UserService {
 			user.getAddresses().set(i,  address);
 		}
 
-		System.out.println("[UserServiceImpl] - createUser -  Mapper");
-		
-		ModelMapper modelMapper = new ModelMapper();
+		ModelMapper modelMapper = new ModelMapper ();
 		UserEntity userEntity = modelMapper.map(user, UserEntity.class);
 		
-		String publicUserId = utils.generateUSerId(30);
+		String publicUserId = utils.generateUserId(30);
 		userEntity.setUserId(publicUserId);
 		userEntity.setEncryptedPassword(bCryptPasswordEncoder.encode(user.getPassword()));
 
-		System.out.println("[UserServiceImpl] - createUser -  save");
-		System.out.println(userEntity.toString());
-		
 		UserEntity storedUserDetails = userRepository.save(userEntity);
-		
-		System.out.println("[UserServiceImpl] - createUser -  pos-save");
-
 		UserDto returnValue = modelMapper.map(storedUserDetails, UserDto.class);
-		
-		System.out.println("[UserServiceImpl] - createUser -  end");
 
 		return returnValue;
 	}

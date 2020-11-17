@@ -45,7 +45,7 @@ public class AddressEntity implements Serializable {
 	}
 
 	public void setId(Long id) {
-		this.id = id;
+		this.id = null;
 	}
 
 	public String getAddressId() {

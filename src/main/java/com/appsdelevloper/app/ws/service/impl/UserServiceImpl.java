@@ -16,9 +16,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.appsdelevloper.app.ws.exception.UserServiceException;
+import com.appsdelevloper.app.ws.io.entity.PasswordResetTokenEntity;
 import com.appsdelevloper.app.ws.io.entity.UserEntity;
+import com.appsdelevloper.app.ws.io.repositories.PasswordResetTokenRepository;
 import com.appsdelevloper.app.ws.io.repositories.UserRepository;
 import com.appsdelevloper.app.ws.service.UserService;
+import com.appsdelevloper.app.ws.shared.MailJetSES;
 import com.appsdelevloper.app.ws.shared.Utils;
 import com.appsdelevloper.app.ws.shared.dto.AddressDTO;
 import com.appsdelevloper.app.ws.shared.dto.UserDto;
@@ -35,6 +38,9 @@ public class UserServiceImpl implements UserService {
 
 	@Autowired
 	BCryptPasswordEncoder bCryptPasswordEncoder;
+	
+	@Autowired
+	PasswordResetTokenRepository passwordResetTokenRepository;
 
 	@Override
 	public UserDto createUser(UserDto user) {
@@ -57,12 +63,15 @@ public class UserServiceImpl implements UserService {
 		userEntity.setEncryptedPassword(bCryptPasswordEncoder.encode(user.getPassword()));
 
 		String verficationToken = utils.generateEmailVerificationToken(publicUserId);
-		userEntity.setEmailVerficationToken(verficationToken);
+		userEntity.setEmailVerificationToken(verficationToken);
 		userEntity.setEmailVerificationStatus(false);
 		
 		
 		UserEntity storedUserDetails = userRepository.save(userEntity);
 		UserDto returnValue = modelMapper.map(storedUserDetails, UserDto.class);
+		
+		//send email
+		new MailJetSES().verifyEmail(returnValue);
 
 		return returnValue;
 	}
@@ -173,17 +182,69 @@ public class UserServiceImpl implements UserService {
 	public boolean verifyEmailToken(String token) {
 		boolean returnValue = false;
 		
-		UserEntity userEntity = userRepository.findByEmailVerficationToken(token);
-		
+		UserEntity userEntity = userRepository.findByEmailVerificationToken(token);
+	
 		if(userEntity != null) {
 			boolean hasTokenExpired = Utils.hasTokenExpired(token);
-			if(hasTokenExpired) {
-				userEntity.setEmailVerficationToken(null);
+
+			if(!hasTokenExpired) {
+				userEntity.setEmailVerificationToken(null);
 				userEntity.setEmailVerificationStatus(Boolean.TRUE);
 				userRepository.save(userEntity);
 				returnValue = true;
 			}
 		}
+		return returnValue;
+	}
+
+	@Override
+	public boolean requestPasswordReset(String email) {
+		
+		boolean returnValue = false;
+		UserEntity userEntity = userRepository.findByEmail(email);
+		if(userEntity == null) {
+			return returnValue;
+		}
+		
+		String token = new Utils().generatePasswordResetToken(userEntity.getUserId());
+		
+		PasswordResetTokenEntity passwordResetTokenEntity = new PasswordResetTokenEntity();
+		passwordResetTokenEntity.setToken(token);
+		passwordResetTokenEntity.setUserDetails(userEntity);
+		passwordResetTokenRepository.save(passwordResetTokenEntity);
+		
+		returnValue = new MailJetSES().sendPasswordResetRequest(userEntity.getFirstName(), userEntity.getEmail(), token);
+		
+		return returnValue;
+	}
+
+	@Override
+	public boolean resetPassword(String token, String password) {
+		boolean returnValue = false;
+		
+		if(Utils.hasTokenExpired(token)) {
+			return returnValue;
+		}
+		
+		PasswordResetTokenEntity passwordResetTokenEntity = passwordResetTokenRepository.findByToken(token);
+		
+		if(passwordResetTokenEntity == null) {
+			return returnValue;
+		}
+		
+		String encodedPassword = bCryptPasswordEncoder.encode(password);
+		
+		UserEntity userEntity = passwordResetTokenEntity.getUserDetails();
+		userEntity.setEncryptedPassword(encodedPassword);
+		UserEntity savedUser = userRepository.save(userEntity); 
+		
+		//Verify if user password has saved
+		if(savedUser != null && savedUser.getEncryptedPassword().equalsIgnoreCase(encodedPassword)) {
+			returnValue = true;
+		}
+		
+		passwordResetTokenRepository.delete(passwordResetTokenEntity);
+		
 		return returnValue;
 	}
 

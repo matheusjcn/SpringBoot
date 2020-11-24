@@ -1,5 +1,6 @@
-package com.appsdelevloper.app.ws.ui.controller;
+ package com.appsdelevloper.app.ws.ui.controller;
 
+import java.io.Console;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +28,8 @@ import com.appsdelevloper.app.ws.service.AddressService;
 import com.appsdelevloper.app.ws.service.UserService;
 import com.appsdelevloper.app.ws.shared.dto.AddressDTO;
 import com.appsdelevloper.app.ws.shared.dto.UserDto;
+import com.appsdelevloper.app.ws.ui.model.request.PasswordResetModel;
+import com.appsdelevloper.app.ws.ui.model.request.PasswordResetRequestModel;
 import com.appsdelevloper.app.ws.ui.model.request.UserDetailsRequestModel;
 import com.appsdelevloper.app.ws.ui.model.response.AddressesRest;
 import com.appsdelevloper.app.ws.ui.model.response.OperationStatusModel;
@@ -163,7 +166,7 @@ public class UserController {
 
 		OperationStatusModel returnValue = new OperationStatusModel();
 		returnValue.setOperationName(RequestOperationName.VERIFY_EMAIL.name());
-
+		
 		boolean isVerified = userService.verifyEmailToken(token);
 		if (isVerified) {
 			returnValue.setOperationResult(RequestOperationStatus.SUCCESS.name());
@@ -173,5 +176,49 @@ public class UserController {
 
 		return returnValue;
 	}
+	
+	
+	@PostMapping(
+			path = "/password-reset-request",
+			consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }, 
+			produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
+	public OperationStatusModel resetPassword(@RequestBody PasswordResetRequestModel passwordResetRequestModel) throws Exception {
+		OperationStatusModel returnValue = new OperationStatusModel();
+		
+		boolean operationResult = userService.requestPasswordReset(passwordResetRequestModel.getEmail());
+		
+		returnValue.setOperationName(RequestOperationName.REQUEST_PASSWORD_RESET.name());
+		returnValue.setOperationResult(RequestOperationStatus.ERROR.name());
+		
+		if(operationResult) {
+			returnValue.setOperationResult(RequestOperationStatus.SUCCESS.name());
+		}
+		return returnValue;
+	}
+	
+	@PostMapping(
+			path = "/reset-password",
+			consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }) 
+	public OperationStatusModel requestReset(@RequestBody PasswordResetModel passwordResetModel) {
+		OperationStatusModel returnValue = new OperationStatusModel();
+		
+		System.out.println("Print - reset Password");
+		
+		boolean operationResult = userService.resetPassword(
+				passwordResetModel.getToken(),
+				passwordResetModel.getPassword());
+		
+		returnValue.setOperationName(RequestOperationName.PASSWORD_RESET.name());
+		returnValue.setOperationResult(RequestOperationStatus.ERROR.name());
+		
+		if (operationResult) {
+			returnValue.setOperationResult(RequestOperationStatus.SUCCESS.name());
+		}
+		
+		return returnValue;
+		
+	}
+
+
 
 }

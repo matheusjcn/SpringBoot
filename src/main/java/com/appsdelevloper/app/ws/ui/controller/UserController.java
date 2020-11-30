@@ -1,6 +1,5 @@
  package com.appsdelevloper.app.ws.ui.controller;
 
-import java.io.Console;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
@@ -197,7 +196,7 @@ public class UserController {
 	}
 	
 	@PostMapping(
-			path = "/reset-password",
+			path = "/password-reset",
 			consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }) 
 	public OperationStatusModel requestReset(@RequestBody PasswordResetModel passwordResetModel) {
 		OperationStatusModel returnValue = new OperationStatusModel();

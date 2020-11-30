@@ -41,12 +41,15 @@ public class UserServiceImpl implements UserService {
 	
 	@Autowired
 	PasswordResetTokenRepository passwordResetTokenRepository;
+	
+	@Autowired
+	MailJetSES mailJetSES;
 
 	@Override
 	public UserDto createUser(UserDto user) {
 
 		if (userRepository.findByEmail(user.getEmail()) != null)
-			throw new RuntimeException("Record already Exists");
+			throw new UserServiceException("Record already Exists");
 		
 		for (int i = 0; i < user.getAddresses().size(); i++) {
 			AddressDTO address = user.getAddresses().get(i);
@@ -71,7 +74,7 @@ public class UserServiceImpl implements UserService {
 		UserDto returnValue = modelMapper.map(storedUserDetails, UserDto.class);
 		
 		//send email
-		new MailJetSES().verifyEmail(returnValue);
+		mailJetSES .verifyEmail(returnValue);
 
 		return returnValue;
 	}
@@ -237,7 +240,6 @@ public class UserServiceImpl implements UserService {
 		UserEntity userEntity = passwordResetTokenEntity.getUserDetails();
 		userEntity.setEncryptedPassword(encodedPassword);
 		UserEntity savedUser = userRepository.save(userEntity); 
-		
 		//Verify if user password has saved
 		if(savedUser != null && savedUser.getEncryptedPassword().equalsIgnoreCase(encodedPassword)) {
 			returnValue = true;

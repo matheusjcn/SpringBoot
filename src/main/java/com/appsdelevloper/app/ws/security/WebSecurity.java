@@ -5,7 +5,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.http.SessionCreationPolicy;
+//import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import com.appsdelevloper.app.ws.service.UserService;
@@ -32,12 +32,16 @@ public class WebSecurity extends WebSecurityConfigurerAdapter{
 		.permitAll()
 		.antMatchers(HttpMethod.POST, SecurityConstants.PASSWORD_RESET_URL)
 		.permitAll()
+		.antMatchers(SecurityConstants.H2_CONSOLE)
+		.permitAll()
 		.anyRequest()
 		.authenticated().and()
 		.addFilter(getAuthenticationFilter())
-		.addFilter(new AuthorizationFilter(authenticationManager()))
-		.sessionManagement()
-		.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+		.addFilter(new AuthorizationFilter(authenticationManager()));
+		//.sessionManagement()
+		//.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+		
+		http.headers().frameOptions().disable();
 	}
 	
 	@Override

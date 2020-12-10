@@ -1,4 +1,4 @@
-package com.appsdelevloper.app.ws.io.repositories;
+ package com.appsdelevloper.app.ws.io.repositories;
 
 import java.util.List;
 

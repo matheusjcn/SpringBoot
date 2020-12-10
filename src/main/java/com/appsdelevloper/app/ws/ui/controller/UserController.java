@@ -13,6 +13,7 @@ import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -35,6 +36,10 @@ import com.appsdelevloper.app.ws.ui.model.response.OperationStatusModel;
 import com.appsdelevloper.app.ws.ui.model.response.RequestOperationStatus;
 import com.appsdelevloper.app.ws.ui.model.response.UserRest;
 
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
 @RestController
@@ -50,6 +55,9 @@ public class UserController {
 	@Autowired
 	AddressService addressesService;
 
+	
+	@ApiOperation(value="Get user details webservice endpoint",
+			notes="This service returns UserDetails and user public id")
 	@GetMapping(path = "/{id}", produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
 	public UserRest getUser(@PathVariable String id) {
 		UserRest returnValue = new UserRest();
@@ -103,6 +111,10 @@ public class UserController {
 		return returnValue;
 	}
 
+	
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="authorization", value="${userController.authorizationHeader.description}", paramType="header")
+	})
 	@GetMapping(produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
 	public List<UserRest> getUsers(@RequestParam(value = "page", defaultValue = "1") int page,
 			@RequestParam(value = "limit", defaultValue = "25") int limit) {
@@ -159,8 +171,10 @@ public class UserController {
 		return EntityModel.of(returnValue, Arrays.asList(userLink, addressesLink, addressLink));
 	}
 
+	
 	@GetMapping(path = "/email-verification", produces = { MediaType.APPLICATION_XML_VALUE,
 			MediaType.APPLICATION_JSON_VALUE })
+	@CrossOrigin(origins = "http://localhost:8000")
 	public OperationStatusModel verifyEmailToken(@RequestParam(value = "token") String token) {
 
 		OperationStatusModel returnValue = new OperationStatusModel();

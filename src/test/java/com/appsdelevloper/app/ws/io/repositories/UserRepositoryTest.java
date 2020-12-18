@@ -17,8 +17,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import com.appsdelevloper.app.ws.io.entity.AddressEntity;
-import com.appsdelevloper.app.ws.io.entity.UserEntity;
+import com.appsdeveloper.app.ws.io.entity.AddressEntity;
+import com.appsdeveloper.app.ws.io.entity.UserEntity;
+import com.appsdeveloper.app.ws.io.repositories.UserRepository;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest

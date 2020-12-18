@@ -13,10 +13,11 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import com.appsdelevloper.app.ws.service.impl.UserServiceImpl;
-import com.appsdelevloper.app.ws.shared.dto.AddressDTO;
-import com.appsdelevloper.app.ws.shared.dto.UserDto;
-import com.appsdelevloper.app.ws.ui.model.response.UserRest;
+import com.appsdeveloper.app.ws.service.impl.UserServiceImpl;
+import com.appsdeveloper.app.ws.shared.dto.AddressDTO;
+import com.appsdeveloper.app.ws.shared.dto.UserDto;
+import com.appsdeveloper.app.ws.ui.controller.UserController;
+import com.appsdeveloper.app.ws.ui.model.response.UserRest;
 
 class UserControllerTest {
 

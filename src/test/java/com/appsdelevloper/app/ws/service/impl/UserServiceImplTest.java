@@ -20,15 +20,16 @@ import org.modelmapper.TypeToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import com.appsdelevloper.app.ws.exception.UserServiceException;
-import com.appsdelevloper.app.ws.io.entity.AddressEntity;
-import com.appsdelevloper.app.ws.io.entity.UserEntity;
-import com.appsdelevloper.app.ws.io.repositories.PasswordResetTokenRepository;
-import com.appsdelevloper.app.ws.io.repositories.UserRepository;
-import com.appsdelevloper.app.ws.shared.MailJetSES;
-import com.appsdelevloper.app.ws.shared.Utils;
-import com.appsdelevloper.app.ws.shared.dto.AddressDTO;
-import com.appsdelevloper.app.ws.shared.dto.UserDto;
+import com.appsdeveloper.app.ws.exception.UserServiceException;
+import com.appsdeveloper.app.ws.io.entity.AddressEntity;
+import com.appsdeveloper.app.ws.io.entity.UserEntity;
+import com.appsdeveloper.app.ws.io.repositories.PasswordResetTokenRepository;
+import com.appsdeveloper.app.ws.io.repositories.UserRepository;
+import com.appsdeveloper.app.ws.service.impl.UserServiceImpl;
+import com.appsdeveloper.app.ws.shared.MailJetSES;
+import com.appsdeveloper.app.ws.shared.Utils;
+import com.appsdeveloper.app.ws.shared.dto.AddressDTO;
+import com.appsdeveloper.app.ws.shared.dto.UserDto;
 
 class UserServiceImplTest {
 
